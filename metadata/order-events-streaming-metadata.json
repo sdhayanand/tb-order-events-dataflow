@@ -1,0 +1,83 @@
+{
+  "name": "TB OTD - Order Events Streaming",
+  "description": "Streams orders-v1 / inventory-v1 / shipments-v1 from Pub/Sub into BigQuery otd.* with validation, store enrichment, 1-minute store metrics and a dead-letter path to events-dlq.",
+  "parameters": [
+    {
+      "name": "ordersSubscription",
+      "label": "Orders subscription",
+      "helpText": "Pub/Sub subscription on orders-v1, e.g. projects/my-project/subscriptions/orders-dataflow",
+      "regexes": ["^projects\\/[^\\/]+\\/subscriptions\\/[^\\/]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "inventorySubscription",
+      "label": "Inventory subscription",
+      "helpText": "Pub/Sub subscription on inventory-v1, e.g. projects/my-project/subscriptions/inventory-dataflow",
+      "regexes": ["^projects\\/[^\\/]+\\/subscriptions\\/[^\\/]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "shipmentsSubscription",
+      "label": "Shipments subscription",
+      "helpText": "Pub/Sub subscription on shipments-v1, e.g. projects/my-project/subscriptions/shipments-dataflow",
+      "regexes": ["^projects\\/[^\\/]+\\/subscriptions\\/[^\\/]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "deadLetterTopic",
+      "label": "Dead-letter topic",
+      "helpText": "Pub/Sub topic receiving invalid messages and rejected BigQuery rows, e.g. projects/my-project/topics/events-dlq",
+      "regexes": ["^projects\\/[^\\/]+\\/topics\\/[^\\/]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "bigQueryDataset",
+      "label": "BigQuery dataset",
+      "helpText": "Dataset holding order_events, order_lines, inventory_events, shipment_events, store_order_metrics and dead_letter (default otd)",
+      "regexes": ["^[A-Za-z0-9_]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "bigQueryProject",
+      "label": "BigQuery project",
+      "helpText": "Project of the dataset; defaults to the job's project",
+      "regexes": ["^[a-z][a-z0-9-]{4,28}[a-z0-9]$"],
+      "isOptional": true
+    },
+    {
+      "name": "metricsWindowMinutes",
+      "label": "Metrics window (minutes)",
+      "helpText": "Fixed window size for store_order_metrics (default 1)",
+      "regexes": ["^[0-9]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "metricsAllowedLatenessMinutes",
+      "label": "Metrics allowed lateness (minutes)",
+      "helpText": "How long after the watermark passes a window late events still update it (default 5)",
+      "regexes": ["^[0-9]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "storeReferenceGcsPath",
+      "label": "Store reference CSV",
+      "helpText": "Optional gs:// path of a CSV store_id,store_name,region,timezone used to enrich order rows",
+      "regexes": ["^gs:\\/\\/[^\\n\\r]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "bigQueryTriggeringSeconds",
+      "label": "BigQuery flush interval (seconds)",
+      "helpText": "Storage Write API triggering frequency in exactly-once mode (default 10)",
+      "regexes": ["^[0-9]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "useStorageApiAtLeastOnce",
+      "label": "Use at-least-once Storage Write API",
+      "helpText": "true = STORAGE_API_AT_LEAST_ONCE (no shuffle, lower latency, possible duplicates); false = exactly-once STORAGE_WRITE_API (default)",
+      "regexes": ["^(true|false)$"],
+      "isOptional": true
+    }
+  ]
+}

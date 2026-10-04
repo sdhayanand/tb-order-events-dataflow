@@ -1,0 +1,6 @@
+{ "eventId": "2b9f6c1e-3d44-4c1b-9a65-1f0b6f5d2c90", "eventType": "INVENTORY_RESERVED",
+  "eventTime": "2026-10-03T22:14:06.500Z", "schemaVersion": "1",
+  "source": "INVENTORY_SERVICE", "correlationId": "store-0412-txn-889213",
+  "orderId": "ORD-2026-000123", "storeId": "0412",
+  "lines": [ { "lineNumber": 1, "sku": "MW-SUIT-NAVY-42R", "quantity": 1,
+               "status": "RESERVED", "locationId": "0412" } ] }

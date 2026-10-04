@@ -1,0 +1,28 @@
+{
+  "eventId": "9d2a7a40-1b7e-4a0c-b7f3-0c3f1d2a5e77",
+  "eventType": "ORDER_CREATED",
+  "eventTime": "2026-10-03T22:16:40.000Z",
+  "schemaVersion": "1",
+  "source": "TIBCO_EMS_BRIDGE",
+  "correlationId": "store-0412-txn-889301",
+  "legacyMessageId": "ID:EMS-SERVER.1A2B3C4D5E6F",
+  "order": {
+    "orderId": "ORD-2026-000124",
+    "orderType": "RENTAL",
+    "channel": "STORE",
+    "storeId": "0412",
+    "customerId": "C-10233",
+    "orderedAt": "2026-10-03T22:16:30Z",
+    "promisedDate": "2026-10-17",
+    "currency": "USD",
+    "totalAmount": 219.00,
+    "lines": [
+      { "lineNumber": 1, "sku": "TUX-BLACK-40R", "quantity": 1, "unitPrice": 189.00,
+        "fulfillmentType": "RENTAL" },
+      { "lineNumber": 2, "sku": "RENT-SHOES-10", "quantity": 1, "unitPrice": 30.00,
+        "fulfillmentType": "RENTAL" }
+    ],
+    "rental": { "eventId": "WED-55901", "eventDate": "2026-10-18", "returnDueDate": "2026-10-20", "groupId": "WED-55901-G1" },
+    "shipTo": null
+  }
+}

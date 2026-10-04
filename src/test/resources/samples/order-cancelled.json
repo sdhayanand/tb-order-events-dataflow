@@ -1,0 +1,19 @@
+{
+  "eventId": "c0ffee00-0000-4000-8000-000000000001",
+  "eventType": "ORDER_CANCELLED",
+  "eventTime": "2026-10-03T23:01:00.000Z",
+  "schemaVersion": "1",
+  "source": "ORDER_INTAKE_API",
+  "correlationId": "store-0412-txn-889213-cancel",
+  "order": {
+    "orderId": "ORD-2026-000123",
+    "orderType": "TAILORED",
+    "channel": "STORE",
+    "storeId": "0412",
+    "customerId": "C-77812",
+    "orderedAt": "2026-10-03T22:14:00Z",
+    "currency": "USD",
+    "totalAmount": 0,
+    "lines": []
+  }
+}

@@ -1,0 +1,106 @@
+name: deploy-gcp
+# Builds both Flex Templates into gs://$PROJECT-tb-otd-dataflow/templates/ with launcher images in
+# Artifact Registry ($REGION-docker.pkg.dev/$PROJECT/tb-otd/dataflow-<name>), then optionally
+# launches the streaming job. Needs the repo variables/secrets set by tb-platform-infra bootstrap:
+#   vars:    GCP_PROJECT_ID, GCP_REGION (us-central1), AR_REPO (tb-otd)
+#   secrets: GCP_WIF_PROVIDER, GCP_DEPLOYER_SA
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      start_streaming:
+        description: Launch the order-events-streaming job after building the templates
+        type: boolean
+        default: false
+      image_tag:
+        description: Launcher image tag (default = git sha)
+        type: string
+        default: ''
+
+permissions: { contents: read, id-token: write }
+
+env:
+  REGION: ${{ vars.GCP_REGION || 'us-central1' }}
+  AR_REPO: ${{ vars.AR_REPO || 'tb-otd' }}
+
+jobs:
+  templates:
+    if: vars.GCP_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+
+      - id: tag
+        run: echo "image_tag=${{ inputs.image_tag || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build bundled jar
+        run: mvn -B -ntp -DskipTests -Pdataflow package
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+          token_format: access_token
+
+      - uses: google-github-actions/setup-gcloud@v2
+        with: { project_id: '${{ vars.GCP_PROJECT_ID }}' }
+
+      # `flex-template build --jar` runs Cloud Build in the project to create the launcher image.
+      - name: Build order-events-streaming template
+        run: |
+          gcloud dataflow flex-template build \
+            "gs://${{ vars.GCP_PROJECT_ID }}-tb-otd-dataflow/templates/order-events-streaming.json" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --image-gcr-path "${REGION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${AR_REPO}/dataflow-order-events-streaming:${{ steps.tag.outputs.image_tag }}" \
+            --sdk-language JAVA \
+            --flex-template-base-image gcr.io/dataflow-templates-base/java21-template-launcher-base:latest \
+            --metadata-file metadata/order-events-streaming-metadata.json \
+            --jar target/tb-order-events-dataflow-1.0.0-bundled.jar \
+            --env FLEX_TEMPLATE_JAVA_MAIN_CLASS=com.tailoredbrands.otd.dataflow.OrderEventsStreamingPipeline
+
+      - name: Build daily-reconciliation template
+        run: |
+          gcloud dataflow flex-template build \
+            "gs://${{ vars.GCP_PROJECT_ID }}-tb-otd-dataflow/templates/daily-reconciliation.json" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --image-gcr-path "${REGION}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${AR_REPO}/dataflow-daily-reconciliation:${{ steps.tag.outputs.image_tag }}" \
+            --sdk-language JAVA \
+            --flex-template-base-image gcr.io/dataflow-templates-base/java21-template-launcher-base:latest \
+            --metadata-file metadata/daily-reconciliation-metadata.json \
+            --jar target/tb-order-events-dataflow-1.0.0-bundled.jar \
+            --env FLEX_TEMPLATE_JAVA_MAIN_CLASS=com.tailoredbrands.otd.dataflow.DailyReconciliationPipeline
+
+  run-streaming:
+    needs: templates
+    if: vars.GCP_PROJECT_ID != '' && github.event_name == 'workflow_dispatch' && inputs.start_streaming
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with: { project_id: '${{ vars.GCP_PROJECT_ID }}' }
+      - name: Launch order-events-streaming
+        run: |
+          PROJECT="${{ vars.GCP_PROJECT_ID }}"
+          gcloud dataflow flex-template run "order-events-streaming-$(date -u +%Y%m%d-%H%M%S)" \
+            --project "${PROJECT}" \
+            --region "${REGION}" \
+            --template-file-gcs-location "gs://${PROJECT}-tb-otd-dataflow/templates/order-events-streaming.json" \
+            --service-account-email "dataflow-runner@${PROJECT}.iam.gserviceaccount.com" \
+            --staging-location "gs://${PROJECT}-tb-otd-dataflow/staging" \
+            --temp-location "gs://${PROJECT}-tb-otd-dataflow/temp" \
+            --enable-streaming-engine \
+            --num-workers 1 \
+            --max-workers 2 \
+            --worker-machine-type n1-standard-2 \
+            --parameters "ordersSubscription=projects/${PROJECT}/subscriptions/orders-dataflow,inventorySubscription=projects/${PROJECT}/subscriptions/inventory-dataflow,shipmentsSubscription=projects/${PROJECT}/subscriptions/shipments-dataflow,deadLetterTopic=projects/${PROJECT}/topics/events-dlq,bigQueryDataset=otd"

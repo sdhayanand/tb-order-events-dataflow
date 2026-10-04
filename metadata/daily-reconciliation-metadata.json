@@ -1,0 +1,48 @@
+{
+  "name": "TB OTD - Daily Reconciliation",
+  "description": "Batch job: joins the legacy OMS XML extract for a business date with otd.order_events and writes otd.order_reconciliation, otd.legacy_oms_orders and a CSV summary report.",
+  "parameters": [
+    {
+      "name": "runDate",
+      "label": "Run date",
+      "helpText": "Business date to reconcile, yyyy-MM-dd (defaults to yesterday UTC when omitted)",
+      "regexes": ["^[0-9]{4}-[0-9]{2}-[0-9]{2}$"],
+      "isOptional": true
+    },
+    {
+      "name": "legacyExtractPath",
+      "label": "Legacy OMS extract glob",
+      "helpText": "gs:// glob of the OMS XML extract files, e.g. gs://my-bucket/oms-extract/2026-10-03/*.xml",
+      "regexes": ["^gs:\\/\\/[^\\n\\r]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "reportGcsPath",
+      "label": "Summary report path",
+      "helpText": "Full gs:// path of the CSV summary (run_date,classification,count), e.g. gs://my-bucket/reports/reconciliation-2026-10-03.csv",
+      "regexes": ["^gs:\\/\\/[^\\n\\r]+\\.csv$"],
+      "isOptional": false
+    },
+    {
+      "name": "bigQueryDataset",
+      "label": "BigQuery dataset",
+      "helpText": "Dataset holding order_events and receiving legacy_oms_orders / order_reconciliation (default otd)",
+      "regexes": ["^[A-Za-z0-9_]+$"],
+      "isOptional": true
+    },
+    {
+      "name": "bigQueryProject",
+      "label": "BigQuery project",
+      "helpText": "Project of the dataset; defaults to the job's project",
+      "regexes": ["^[a-z][a-z0-9-]{4,28}[a-z0-9]$"],
+      "isOptional": true
+    },
+    {
+      "name": "amountTolerance",
+      "label": "Amount tolerance",
+      "helpText": "Absolute difference tolerated before AMOUNT_MISMATCH (default 0.01)",
+      "regexes": ["^[0-9]+(\\.[0-9]+)?$"],
+      "isOptional": true
+    }
+  ]
+}

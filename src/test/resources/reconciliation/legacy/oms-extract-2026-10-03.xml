@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Orders xmlns="http://tailoredbrands.com/oms/orders/v1" extractDate="2026-10-03">
+  <!-- ORD-2026-000001: identical on both sides -> MATCH -->
+  <Order>
+    <OrderNbr>ORD-2026-000001</OrderNbr>
+    <OrderType>TAILORED</OrderType>
+    <StoreNbr>0412</StoreNbr>
+    <CustNbr>C-77812</CustNbr>
+    <OrderDate>2026-10-03T14:02:11</OrderDate>
+    <Lines>
+      <Line><LineNbr>1</LineNbr><SKU>MW-SUIT-NAVY-42R</SKU><Qty>1</Qty><Price>599.99</Price><FulfillType>STORE_PICKUP</FulfillType></Line>
+      <Line><LineNbr>2</LineNbr><SKU>ALT-HEM-TROUSER</SKU><Qty>1</Qty><Price>50.00</Price><FulfillType>ALTERATION</FulfillType></Line>
+    </Lines>
+  </Order>
+  <!-- ORD-2026-000002: legacy total 219.00, Pub/Sub total 229.00 -> AMOUNT_MISMATCH -->
+  <Order>
+    <OrderNbr>ORD-2026-000002</OrderNbr>
+    <OrderType>RENTAL</OrderType>
+    <StoreNbr>0412</StoreNbr>
+    <CustNbr>C-10233</CustNbr>
+    <OrderDate>2026-10-03T15:40:00</OrderDate>
+    <Lines>
+      <Line><LineNbr>1</LineNbr><SKU>TUX-BLACK-40R</SKU><Qty>1</Qty><Price>189.00</Price><FulfillType>RENTAL</FulfillType></Line>
+      <Line><LineNbr>2</LineNbr><SKU>RENT-SHOES-10</SKU><Qty>1</Qty><Price>30.00</Price><FulfillType>RENTAL</FulfillType></Line>
+    </Lines>
+  </Order>
+  <!-- ORD-2026-000003: only in the legacy extract -> MISSING_IN_PUBSUB -->
+  <Order>
+    <OrderNbr>ORD-2026-000003</OrderNbr>
+    <OrderType>RETAIL</OrderType>
+    <StoreNbr>0199</StoreNbr>
+    <CustNbr>C-50001</CustNbr>
+    <OrderDate>2026-10-03T16:05:30</OrderDate>
+    <Lines>
+      <Line><LineNbr>1</LineNbr><SKU>JAB-SHIRT-WHITE-16</SKU><Qty>2</Qty><Price>79.50</Price><FulfillType>STORE_PICKUP</FulfillType></Line>
+    </Lines>
+  </Order>
+  <!-- ORD-2026-000004: same total but 3 lines vs 2 -> LINE_COUNT_MISMATCH -->
+  <Order>
+    <OrderNbr>ORD-2026-000004</OrderNbr>
+    <OrderType>ECOM</OrderType>
+    <StoreNbr>0877</StoreNbr>
+    <CustNbr>C-61200</CustNbr>
+    <OrderDate>2026-10-03T18:22:45</OrderDate>
+    <Lines>
+      <Line><LineNbr>1</LineNbr><SKU>KG-BLAZER-BLK-44L</SKU><Qty>1</Qty><Price>120.00</Price><FulfillType>SHIP_TO_HOME</FulfillType></Line>
+      <Line><LineNbr>2</LineNbr><SKU>KG-TIE-RED</SKU><Qty>1</Qty><Price>20.00</Price><FulfillType>SHIP_TO_HOME</FulfillType></Line>
+      <Line><LineNbr>3</LineNbr><SKU>KG-BELT-BLK</SKU><Qty>1</Qty><Price>10.00</Price><FulfillType>SHIP_TO_HOME</FulfillType></Line>
+    </Lines>
+  </Order>
+</Orders>

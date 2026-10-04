@@ -1,0 +1,5 @@
+{ "eventId": "7e1d9b2a-5c3f-4e8a-a1b2-6d4c3e2f1a00", "eventType": "SHIPMENT_UPDATED",
+  "eventTime": "2026-10-04T15:30:12.000Z", "schemaVersion": "1",
+  "source": "SHIPMENT_WEBHOOK", "correlationId": "store-0412-txn-889213",
+  "orderId": "ORD-2026-000123", "trackingNumber": "1Z999AA10123456784", "carrier": "UPS",
+  "status": "IN_TRANSIT", "statusTime": "2026-10-04T15:29:55Z", "location": "Oakland, CA" }

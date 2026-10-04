@@ -1,0 +1,28 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local runs
+/out/
+/local-output/
+*.log
+hs_err_pid*
+
+# Credentials - never commit
+*.json.key
+service-account*.json
+.env
+.venv/

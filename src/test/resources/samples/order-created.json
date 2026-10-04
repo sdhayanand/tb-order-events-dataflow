@@ -1,0 +1,29 @@
+{
+  "eventId": "6f1c0c8e-6f2a-4d8c-9a8e-4b6b0e2a9c11",
+  "eventType": "ORDER_CREATED",
+  "eventTime": "2026-10-03T22:14:05.120Z",
+  "schemaVersion": "1",
+  "source": "ORDER_INTAKE_API",
+  "correlationId": "store-0412-txn-889213",
+  "legacyMessageId": null,
+  "order": {
+    "orderId": "ORD-2026-000123",
+    "orderType": "TAILORED",
+    "channel": "STORE",
+    "storeId": "0412",
+    "customerId": "C-77812",
+    "orderedAt": "2026-10-03T22:14:00Z",
+    "promisedDate": "2026-10-10",
+    "currency": "USD",
+    "totalAmount": 649.99,
+    "lines": [
+      { "lineNumber": 1, "sku": "MW-SUIT-NAVY-42R", "quantity": 1, "unitPrice": 599.99,
+        "fulfillmentType": "STORE_PICKUP" },
+      { "lineNumber": 2, "sku": "ALT-HEM-TROUSER", "quantity": 1, "unitPrice": 50.00,
+        "fulfillmentType": "ALTERATION", "alteration": { "type": "HEM", "measurementInches": 31.5,
+        "tailorShopId": "TS-EASTBAY" } }
+    ],
+    "rental": null,
+    "shipTo": null
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "eventId": "bad00000-0000-4000-8000-000000000002",
+  "eventType": "ORDER_PLACED",
+  "eventTime": "2026-10-03T22:14:05.120Z",
+  "schemaVersion": "1",
+  "source": "ORDER_INTAKE_API",
+  "correlationId": "store-0412-txn-889999",
+  "order": {
+    "orderId": "ORD-2026-000999",
+    "orderType": "TAILORED",
+    "channel": "STORE",
+    "storeId": "0412",
+    "currency": "USD",
+    "totalAmount": 10.00,
+    "lines": [ { "lineNumber": 1, "sku": "X", "quantity": 1, "unitPrice": 10.00, "fulfillmentType": "STORE_PICKUP" } ]
+  }
+}
