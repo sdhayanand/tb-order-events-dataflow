@@ -5,19 +5,13 @@ name: deploy-gcp
 #   vars:    GCP_PROJECT_ID, GCP_REGION (us-central1), AR_REPO (tb-otd)
 #   secrets: GCP_WIF_PROVIDER, GCP_DEPLOYER_SA
 on:
-  push:
-    branches: [main]
+  # On demand (or via tb-platform-infra deploy-all) once the platform exists - pushes only run CI.
   workflow_dispatch:
     inputs:
       start_streaming:
-        description: Launch the order-events-streaming job after building the templates
+        description: start the Dataflow streaming job after deploying the templates
         type: boolean
         default: false
-      image_tag:
-        description: Launcher image tag (default = git sha)
-        type: string
-        default: ''
-
 permissions: { contents: read, id-token: write }
 
 env:
