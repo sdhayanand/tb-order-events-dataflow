@@ -13,7 +13,11 @@ jobs:
       - run: mvn -B -ntp verify
       - uses: actions/upload-artifact@v4
         if: always()
-        with: { name: test-reports, path: '**/target/surefire-reports/**,**/target/failsafe-reports/**' }
+        with:
+          name: test-reports
+          path: |
+            **/target/surefire-reports/**
+            **/target/failsafe-reports/**
 
   bundled-jar:   # fat jar for Flex Templates, only on main
     needs: build
