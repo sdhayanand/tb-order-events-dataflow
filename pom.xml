@@ -132,11 +132,14 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- Runtime, not test: Beam registers TestPipelineOptions via ServiceLoader and its signature
+         references org.hamcrest.Matcher, so the Flex Template launcher fails without it
+         (NoClassDefFoundError: org/hamcrest/Matcher, seen on Dataflow 2026-10-05). -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest</artifactId>
       <version>${hamcrest.version}</version>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 
