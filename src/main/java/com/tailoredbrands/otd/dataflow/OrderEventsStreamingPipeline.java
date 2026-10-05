@@ -118,7 +118,13 @@ public final class OrderEventsStreamingPipeline {
     options.setStreaming(true);
     Pipeline pipeline = Pipeline.create(options);
     build(pipeline, options);
-    pipeline.run().waitUntilFinish();
+    org.apache.beam.sdk.PipelineResult result = pipeline.run();
+    // Only block when running locally. On Dataflow (and while a Flex Template launcher builds the job)
+    // the job runs server-side and waitUntilFinish() throws "The result of template creation should
+    // not be used" (seen on the first GCP launch, 2026-10-05).
+    if ("DirectRunner".equals(options.getRunner().getSimpleName())) {
+      result.waitUntilFinish();
+    }
   }
 
   /** Assembles the full DAG on {@code pipeline}. */
