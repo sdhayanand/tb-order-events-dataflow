@@ -95,6 +95,6 @@ jobs:
             --temp-location "gs://${PROJECT}-tb-otd-dataflow/temp" \
             --enable-streaming-engine \
             --num-workers 1 \
-            --max-workers 2 \
-            --worker-machine-type n1-standard-2 \
+            --max-workers 1 \
+            --worker-machine-type e2-standard-2 \
             --parameters "ordersSubscription=projects/${PROJECT}/subscriptions/orders-dataflow,inventorySubscription=projects/${PROJECT}/subscriptions/inventory-dataflow,shipmentsSubscription=projects/${PROJECT}/subscriptions/shipments-dataflow,deadLetterTopic=projects/${PROJECT}/topics/events-dlq,bigQueryDataset=otd"
