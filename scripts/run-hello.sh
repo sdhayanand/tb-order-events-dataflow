@@ -22,5 +22,7 @@ mvn -q -ntp compile exec:java -Dexec.mainClass=com.tailoredbrands.otd.dataflow.e
   -Dexec.args="--runner=DataflowRunner --project=${PROJECT} --region=${REGION} --jobName=${JOB_NAME} \
 --serviceAccount=${SERVICE_ACCOUNT} --tempLocation=${TEMP_LOCATION} --stagingLocation=${STAGING_LOCATION} \
 --numWorkers=1 --maxNumWorkers=1 --workerMachineType=n1-standard-1 --input=${IN} --output=${OUT}"
+echo ">> submitted; waiting for the job (main() returns as soon as Dataflow accepts the graph)"
+PROJECT="$PROJECT" REGION="$REGION" bash scripts/wait-job.sh "$JOB_NAME"
 echo ">> result (${OUT}.csv):"
 gsutil cat "${OUT}.csv"

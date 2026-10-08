@@ -1,6 +1,7 @@
 package com.tailoredbrands.otd.dataflow.examples;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -92,7 +93,12 @@ public final class StoreRevenueJob {
         .apply("WriteResults", TextIO.write().to(options.getOutput()).withSuffix(".csv").withoutSharding()
             .withHeader("store_id,revenue"));
 
-    // Not a Flex Template launch, so blocking until the job finishes is fine here.
-    pipeline.run().waitUntilFinish();
+    PipelineResult result = pipeline.run();
+    // Block only when running locally. On Dataflow - and above all inside a Flex Template launcher -
+    // main() must just submit the graph and return; waiting there fails with "The result of template
+    // creation should not be used" (the same lesson as the production streaming job).
+    if ("DirectRunner".equals(options.getRunner().getSimpleName())) {
+      result.waitUntilFinish();
+    }
   }
 }

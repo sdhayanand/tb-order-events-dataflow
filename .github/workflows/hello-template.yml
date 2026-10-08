@@ -1,0 +1,64 @@
+name: hello-template
+# Production-style path for the hello job: bundled jar -> Flex Template (launcher image in Artifact
+# Registry + spec JSON in GCS) -> launch from the template with parameters -> wait -> print result.
+# After it has run once, anyone can launch the template from Console -> Dataflow -> Create job from template.
+on:
+  workflow_dispatch:
+    inputs:
+      launch:
+        description: launch a job from the template after building it
+        type: boolean
+        default: true
+permissions: { contents: read, id-token: write }
+
+env:
+  REGION: ${{ vars.GCP_REGION || 'us-central1' }}
+  AR_REPO: ${{ vars.AR_REPO || 'tb-otd' }}
+
+jobs:
+  template:
+    if: vars.GCP_PROJECT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21', cache: maven }
+      - name: 1. build the bundled jar (all dependencies in one jar)
+        run: mvn -B -ntp -q -DskipTests -Pdataflow package && ls -la target/*-bundled.jar
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_DEPLOYER_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+        with: { project_id: '${{ vars.GCP_PROJECT_ID }}' }
+      - name: 2. build the Flex Template (Cloud Build makes the launcher image; spec goes to GCS)
+        run: |
+          P="${{ vars.GCP_PROJECT_ID }}"
+          gcloud dataflow flex-template build "gs://${P}-tb-otd-dataflow/templates/store-revenue.json" \
+            --project "$P" \
+            --image-gcr-path "${REGION}-docker.pkg.dev/${P}/${AR_REPO}/dataflow-store-revenue:${{ github.sha }}" \
+            --sdk-language JAVA \
+            --flex-template-base-image gcr.io/dataflow-templates-base/java21-template-launcher-base:latest \
+            --metadata-file metadata/store-revenue-metadata.json \
+            --jar target/tb-order-events-dataflow-1.0.0-bundled.jar \
+            --env FLEX_TEMPLATE_JAVA_MAIN_CLASS=com.tailoredbrands.otd.dataflow.examples.StoreRevenueJob
+          echo "::notice title=template::gs://${P}-tb-otd-dataflow/templates/store-revenue.json"
+      - name: 3. launch from the template and wait
+        if: inputs.launch
+        env:
+          PROJECT: ${{ vars.GCP_PROJECT_ID }}
+          JOB_NAME: store-revenue-template-${{ github.run_number }}
+        run: |
+          set -o pipefail
+          echo "::notice title=job::${JOB_NAME} (Console -> Dataflow -> Jobs)"
+          bash scripts/run-hello-template.sh 2>&1 | tee "$RUNNER_TEMP/launch.log"
+          grep -E '^[0-9]{4},' "$RUNNER_TEMP/launch.log" | while IFS= read -r l; do echo "::notice title=store-revenue.csv::$l"; done
+      - name: errors as annotations
+        if: failure()
+        run: |
+          gcloud dataflow jobs list --region "$REGION" --project "${{ vars.GCP_PROJECT_ID }}" --limit 3 \
+            --format='value(name,state)' | while IFS= read -r l; do echo "::error title=recent jobs::$l"; done
+          grep -iE "error|exception|quota|denied" "$RUNNER_TEMP/launch.log" 2>/dev/null | head -n 6 \
+            | while IFS= read -r l; do echo "::error title=launch::${l:0:900}"; done
+          exit 0

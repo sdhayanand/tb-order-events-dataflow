@@ -1,0 +1,20 @@
+{
+  "name": "TB OTD - Store revenue (hello Dataflow)",
+  "description": "Batch job: reads a CSV of orders (order_id,store_id,amount) and writes revenue per store as one CSV file.",
+  "parameters": [
+    {
+      "name": "input",
+      "label": "Orders CSV",
+      "helpText": "gs:// path of the orders CSV, e.g. gs://my-bucket/hello/input/orders-sample.csv",
+      "regexes": ["^gs:\\/\\/[^\\n\\r]+$"],
+      "isOptional": false
+    },
+    {
+      "name": "output",
+      "label": "Output prefix",
+      "helpText": "gs:// prefix for the result; .csv is appended, e.g. gs://my-bucket/hello/output/run1/store-revenue",
+      "regexes": ["^gs:\\/\\/[^\\n\\r]+$"],
+      "isOptional": false
+    }
+  ]
+}
