@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # The simplest Dataflow job in this repo (StoreRevenueJob): CSV of orders -> revenue per store.
-#   PROJECT=crosscutdata-509514 ./scripts/run-hello.sh            # on Dataflow (watch it in the console)
-#   RUNNER=DirectRunner ./scripts/run-hello.sh                    # on this machine, no GCP needed
+# Always in this order: local first (seconds, free), then the same code on Dataflow.
+#   ./scripts/run-hello.sh                                                    # 1. DirectRunner, on this machine
+#   RUNNER=DataflowRunner PROJECT=crosscutdata-509514 ./scripts/run-hello.sh  # 2. on Dataflow (watch in Console)
 set -euo pipefail
-RUNNER="${RUNNER:-DataflowRunner}"
+RUNNER="${RUNNER:-DirectRunner}"
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 if [[ "$RUNNER" == DirectRunner ]]; then
   mvn -q -ntp compile exec:java -Dexec.mainClass=com.tailoredbrands.otd.dataflow.examples.StoreRevenueJob \

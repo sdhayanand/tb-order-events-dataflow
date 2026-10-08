@@ -24,6 +24,7 @@ jobs:
         run: mvn -B -ntp -q test -Dtest=StoreRevenueJobTest -Dsurefire.failIfNoSpecifiedTests=false
       - name: run on Dataflow
         env:
+          RUNNER: DataflowRunner
           PROJECT: ${{ vars.GCP_PROJECT_ID }}
           REGION: ${{ vars.GCP_REGION || 'us-central1' }}
           JOB_NAME: hello-store-revenue-${{ github.run_number }}
